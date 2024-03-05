@@ -28,6 +28,8 @@ function initialization() {
 	{ [[ -f "$DIR/rofi-network-manager.rasi" ]] && RASI_DIR="$DIR/rofi-network-manager.rasi"; } || { [[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/rofi/rofi-network-manager.rasi" ]] && RASI_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/rofi/rofi-network-manager.rasi"; } || exit
 	for i in "${WIRELESS_INTERFACES[@]}"; do WIRELESS_INTERFACES_PRODUCT+=("$(nmcli -f general.product device show "$i" | awk '{print $2}')"); done
 	for i in "${WIRED_INTERFACES[@]}"; do WIRED_INTERFACES_PRODUCT+=("$(nmcli -f general.product device show "$i" | awk '{print $2}')"); done
+	rofi -e "Initializing settings..." -location "$LOCATION" -yoffset "$Y_AXIS" -xoffset "$X_AXIS" $3 -theme "$RASI_DIR" -theme-str 'window{width: 400;}' &
+    rofi_pid=$!
 	wireless_interface_state && ethernet_interface_state
 }
 function notification() {
@@ -235,6 +237,8 @@ function selection_action() {
 	esac
 }
 function main() {
-	initialization && rofi_menu
+	initialization
+    kill $rofi_pid
+    rofi_menu
 }
 main
